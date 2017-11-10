@@ -12,6 +12,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import subprocess
 import numpy as np
+import sys
 
 def find_in_path(name, path):
     "Find a file in a search path"
@@ -47,10 +48,12 @@ def locate_cuda():
                 'located in your $PATH. Either add it to your path, or set $CUDAHOME')
         home = os.path.dirname(os.path.dirname(nvcc))
 
+    lib64 = pjoin(home, 'lib64')
+    lib64 = lib64 if os.path.exists(lib64) else pjoin(home, 'lib')
     cudaconfig = {'home':home, 'nvcc':nvcc,
                   'include': pjoin(home, 'include'),
-                  'lib64': pjoin(home, 'lib64')}
-    for k, v in cudaconfig.iteritems():
+                  'lib64': lib64}
+    for k, v in cudaconfig.items() if sys.version_info.major > 2 else cudaconfig.iteritems():
         if not os.path.exists(v):
             raise EnvironmentError('The CUDA %s path could not be located in %s' % (k, v))
 
